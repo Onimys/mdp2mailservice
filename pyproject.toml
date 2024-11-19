@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "mdp2mailservice"
+version = "0.1.0"
+description = ""
+authors = ["n-fom <s.pozdnyakov@ase-ec.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.115.4"}
+pydantic-settings = "^2.6.1"
+aiosmtplib = "^3.0.2"
+email-validator = "^2.2.0"
+faststream = {extras = ["rabbit"], version = "^0.5.28"}
+python-multipart = "^0.0.17"
+aiofiles = "^24.1.0"
+sqlalchemy = "^2.0.36"
+asyncpg = "^0.30.0"
+typer = "^0.12.5"
+alembic = "^1.14.0"
+sqladmin = {extras = ["full"], version = "^0.20.1"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-asyncio = "^0.24.0"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

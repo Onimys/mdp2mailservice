@@ -1,0 +1,36 @@
+version: "3"
+
+networks:
+  mdp2mailservice-network:
+    driver: bridge
+
+services:
+  app:
+    container_name: mdp2mailservice-0.1.0
+    image: mdp2/mailservice:0.1.0
+    build: .
+    env_file: ".env.dev"
+    environment:
+      - MAIL_QUEUE_CONSUMER_URL="amqp://guest:guest@rabbitmq:5672/"
+    restart: on-failure
+    ports:
+      - "8111:8000"
+    depends_on:
+      - rabbitmq
+      #  condition: service_healthy
+    networks:
+      - mdp2mailservice-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST="/"
+    tty: true
+    command: bash -c "sleep 10; rabbitmq-server;"
+    networks:
+      - mdp2mailservice-network
