@@ -1,4 +1,5 @@
 from sqlalchemy import ARRAY, String, Text, text
+from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from mdp2mailservice.common.bases.models import Base, DateTimeMixin, uuid_
@@ -16,5 +17,9 @@ class Mail(DateTimeMixin, Base):
     message: Mapped[str] = mapped_column(Text)
 
     status: Mapped[DeliveryStatus] = mapped_column(
-        default=DeliveryStatus.DRAFT, server_default=text("'DRAFT'"), index=True, nullable=False
+        PgEnum(DeliveryStatus, name="deliverystatus", create_type=False, schema=Base.metadata.schema),
+        default=DeliveryStatus.DRAFT,
+        server_default=text("'DRAFT'"),
+        index=True,
+        nullable=False,
     )

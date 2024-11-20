@@ -3,6 +3,8 @@ from typing import Any
 import email_validator
 from pydantic import UUID4, BaseModel, Field, field_validator, model_validator
 
+from mdp2mailservice.template_engine.schemas import Template
+
 from .constants import EMPTY_RECIPIENTS_ERROR, DeliveryStatus
 
 
@@ -15,8 +17,8 @@ class MailSchema(BaseModel):
         ],
     )
     cc_recipients: list[str] | None = Field(default=None, description="Carbon copy recipients.")
-    subject: str = Field(default="", description="Subject of the mail.")
-    message: str = Field(..., min_length=1, description="Message to send.", examples=["Hello, World!"])
+    subject: str | None = Field(default=None, description="Subject of the mail.")
+    message: Template | str = Field(description="Message to send.", examples=["Hello, World!"])
 
     @model_validator(mode="before")
     @classmethod

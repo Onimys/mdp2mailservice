@@ -32,9 +32,9 @@ async def send_mail(
 
 
 @router.post(
-    "/async-send",
-    name="Async send mail",
-    description="Asyncronous mail send.",
+    "/background-send",
+    name="Background send mail",
+    description="Background mail send.",
     response_model=SendMailResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )

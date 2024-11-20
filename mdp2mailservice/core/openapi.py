@@ -14,7 +14,7 @@ def custom_openapi(app: FastAPI):
 
         multipart_schema_names = [
             "Body_Send_mail_api_v1_mails_send_post",
-            "Body_Async_send_mail_api_v1_mails_async_send_post",
+            "Body_Background_send_mail_api_v1_mails_background_send_post",
         ]
         for schema_name in multipart_schema_names:
             openapi_schema["components"]["schemas"][schema_name]["properties"]["body"] = {
@@ -23,6 +23,8 @@ def custom_openapi(app: FastAPI):
                 "$ref": "#/components/schemas/MailSchema",
             }
         openapi_schema["components"]["schemas"]["MailSchema"] = MailSchema.model_json_schema()
+
+        # TODO Error openapi schema in swagger
 
         app.openapi_schema = openapi_schema
         return app.openapi_schema

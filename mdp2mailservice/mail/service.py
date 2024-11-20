@@ -8,16 +8,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from mdp2mailservice.common.utils.files import clean_upload_folder
 from mdp2mailservice.core.config import settings
 from mdp2mailservice.external_services.email import smtp_send_email
+from mdp2mailservice.template_engine.engine import TemplateEngine
 
 from .constants import DeliveryStatus
 from .models import Mail
 from .repository import MailRepository
-from .schemas import MailSchema
+from .schemas import MailSchema, Template
 
 
 class MailService:
     def __init__(self, session: AsyncSession):
         self._session = session
+        self._template_engine = TemplateEngine()
         self.repository = MailRepository(session)
 
     async def send_mail(
@@ -29,9 +31,12 @@ class MailService:
         remove_files: bool = False,
     ) -> Mail:
         mail_id = mail_id or uuid.uuid4()
+
+        if isinstance(mail_data.message, Template):
+            mail_data.message = self._template_engine(mail_data.message).format()
+
         try:
             db_mail: Mail = await self.repository.create_mail(mail_id, mail_data)
-
             await self.__send_mail(db_mail, files)
             await self.repository.update_status(db_mail.id, DeliveryStatus.SENT)
         finally:
