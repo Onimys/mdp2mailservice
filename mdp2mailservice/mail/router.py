@@ -11,7 +11,7 @@ from .dependencies import get_service
 from .schemas import MailSchema, SendMailResponse
 from .service import MailService
 
-router = APIRouter(tags=["Mail"], prefix="/mails")
+router = APIRouter(tags=["mail"], prefix="/mails")
 
 
 @router.post(

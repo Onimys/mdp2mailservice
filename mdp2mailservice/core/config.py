@@ -62,6 +62,7 @@ class Config(SecretSerializeMixin, BaseSettings):
 
     ADMIN_ENABLED: bool = True
 
+    TEMPLATE_DEFAULT_TYPE: str = "jinja"
     TEMPLATE_FOLDER: str = f"{get_app_name()}/templates"
 
     model_config = SettingsConfigDict(env_file=f"{app_folder}/.env")

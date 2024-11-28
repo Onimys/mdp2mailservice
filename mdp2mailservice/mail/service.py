@@ -9,11 +9,12 @@ from mdp2mailservice.common.utils.files import clean_upload_folder
 from mdp2mailservice.core.config import settings
 from mdp2mailservice.external_services.email import smtp_send_email
 from mdp2mailservice.template_engine.engine import TemplateEngine
+from mdp2mailservice.template_engine.schemas import Template
 
 from .constants import DeliveryStatus
 from .models import Mail
 from .repository import MailRepository
-from .schemas import MailSchema, Template
+from .schemas import MailSchema
 
 
 class MailService:
