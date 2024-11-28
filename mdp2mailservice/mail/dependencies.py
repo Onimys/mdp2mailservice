@@ -9,13 +9,13 @@ from .models import Mail
 from .service import MailService
 
 
-def get_service(session: AsyncSession = Depends(get_session)) -> MailService:
+def get_mail_service(session: AsyncSession = Depends(get_session)) -> MailService:
     return MailService(session)
 
 
 async def valid_mail_id(
     mail_id: UUID4,
-    service: MailService = Depends(get_service),
+    service: MailService = Depends(get_mail_service),
 ) -> Mail:
     mail = await service.get_mail(mail_id)
     if not mail:

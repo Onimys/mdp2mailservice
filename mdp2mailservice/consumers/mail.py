@@ -6,7 +6,7 @@ from faststream.rabbit import RabbitQueue
 from faststream.rabbit.fastapi import Logger, RabbitRouter
 
 from mdp2mailservice.core.config import settings
-from mdp2mailservice.mail.dependencies import get_service
+from mdp2mailservice.mail.dependencies import get_mail_service
 from mdp2mailservice.mail.schemas import SendMailRequest
 from mdp2mailservice.mail.service import MailService
 
@@ -31,7 +31,7 @@ queue = RabbitQueue(settings.MAIL_QUEUE_CONSUMER_QUEUE, auto_delete=settings.MAI
     description="Common mail send with RabbitMQ.",
 )
 async def stream_send_mail(
-    msg: ConsumerMailRequest, logger: Logger, service: MailService = Depends(get_service)
+    msg: ConsumerMailRequest, logger: Logger, service: MailService = Depends(get_mail_service)
 ) -> None:
     logger.info(msg)
 

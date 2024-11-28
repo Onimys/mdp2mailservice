@@ -8,7 +8,7 @@ from mdp2mailservice.core.config import settings
 from mdp2mailservice.mail.models import Mail
 
 from .constants import DEFAULT_MAILS_LIMIT, DEFAULT_MAILS_OFFSET, DeliveryStatus
-from .dependencies import get_service, valid_mail_id
+from .dependencies import get_mail_service, valid_mail_id
 from .schemas import MailInDB, SendMailRequest, SendMailResponse
 from .service import MailService
 
@@ -26,7 +26,7 @@ router = APIRouter(tags=["mail"], prefix="/mails")
 async def send_mail(
     body: SendMailRequest = Depends(validate_multupart_json(SendMailRequest)),
     files: list[UploadFile] | None = File(None, examples=[[]]),
-    service: MailService = Depends(get_service),
+    service: MailService = Depends(get_mail_service),
 ) -> SendMailResponse:
     mail = await service.send_mail(body, files)
     return SendMailResponse(status=mail.status, mail_id=mail.id)
@@ -44,7 +44,7 @@ async def send_mail_async(
     background_tasks: BackgroundTasks,
     body: SendMailRequest = Depends(validate_multupart_json(SendMailRequest)),
     files: list[UploadFile] | None = File(None, examples=[[]]),
-    service: MailService = Depends(get_service),
+    service: MailService = Depends(get_mail_service),
 ) -> SendMailResponse:
     mail_id = uuid.uuid4()
 
@@ -59,7 +59,7 @@ async def send_mail_async(
 
 @router.get("/", name="Get All Mails", response_model=list[MailInDB])
 async def get_all_mails(
-    service: MailService = Depends(get_service),
+    service: MailService = Depends(get_mail_service),
     limit: int = Query(DEFAULT_MAILS_LIMIT, ge=1),
     offset: int = Query(DEFAULT_MAILS_OFFSET, ge=0),
 ):
@@ -77,5 +77,5 @@ async def get_mail_status(mail: Mail = Depends(valid_mail_id)):
 
 
 @router.delete("/{mail_id}", name="Delete Mail", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_mail_by_id(mail: Mail = Depends(valid_mail_id), service: MailService = Depends(get_service)):
+async def delete_mail_by_id(mail: Mail = Depends(valid_mail_id), service: MailService = Depends(get_mail_service)):
     return await service.delete_mail(mail.id)
