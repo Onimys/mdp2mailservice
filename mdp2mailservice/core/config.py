@@ -1,5 +1,6 @@
 import tomllib
 from pathlib import Path
+from typing import Final
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -8,7 +9,8 @@ from mdp2mailservice.common.utils.security import SecretSerializeMixin, SecretUr
 
 from ..common.constants import Environment
 
-app_folder = Path(__file__).parent.parent.parent
+APP_FOLDER: Final = Path(__file__).parent.parent.parent
+TEMPLATE_FOLDER: Final = "templates"
 
 
 def get_app_version() -> str:
@@ -57,15 +59,16 @@ class Config(SecretSerializeMixin, BaseSettings):
     APP_NAME: str = get_app_name()
     APP_VERSION: str = get_app_version()
 
-    ATTACHMENTS_FOLDER: str = f"{app_folder}/attachments/"
+    ATTACHMENTS_FOLDER: str = f"{APP_FOLDER}/attachments/"
     ATTACHMENTS_TOTAL_SIZE: int = 10 * 1024 * 1024
 
     ADMIN_ENABLED: bool = True
 
     TEMPLATE_DEFAULT_TYPE: str = "jinja"
-    TEMPLATE_FOLDER: str = f"{get_app_name()}/templates"
+    TEMPLATE_FOLDER_PATH: str = f"{get_app_name()}/{TEMPLATE_FOLDER}"
+    ABSOLUTE_TEMPLATE_FOLDER_PATH: str = f"{APP_FOLDER}/templates"
 
-    model_config = SettingsConfigDict(env_file=f"{app_folder}/.env")
+    model_config = SettingsConfigDict(env_file=f"{APP_FOLDER}/.env")
 
 
 settings = Config()  # type: ignore

@@ -10,7 +10,7 @@ from mdp2mailservice.core.config import settings
 from .constants import TemplateType
 from .schemas import Template
 
-templates = Jinja2Templates(directory=settings.TEMPLATE_FOLDER, autoescape=True)
+templates = Jinja2Templates(directory=settings.TEMPLATE_FOLDER_PATH, autoescape=True)
 
 
 def get_template(name_or_str: str) -> jinja2.Template:
