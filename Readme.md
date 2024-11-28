@@ -8,7 +8,7 @@
 
 ## Client
 
-Example comand for send:
+Example of a command to send an email:
 `$ python ./cli.py send-async -to "example@mail.ru" -s "Subject of the mail" -m "Message to send" -f "path/to/file.txt"`
 
 ## Docker build

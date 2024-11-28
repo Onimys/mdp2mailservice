@@ -3,6 +3,7 @@ from typing import Type
 
 import jinja2
 from fastapi.templating import Jinja2Templates
+from mjml import mjml2html
 
 from mdp2mailservice.core.config import settings
 
@@ -43,7 +44,9 @@ class MJMLTemplateFormatter(TemplateFormatter):
         if self.message.type != TemplateType.MJML:
             raise ValueError("Message must be a MJML template.")
 
-        return str(self.message)  # TODO
+        template = get_template(self.message.template)
+        print(mjml2html(template.render(self.message.context or {})))
+        return mjml2html(template.render(self.message.context or {}))
 
 
 class TemplateEngine:

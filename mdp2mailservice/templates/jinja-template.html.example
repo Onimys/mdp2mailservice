@@ -1,0 +1,12 @@
+{% extends "base.html.example" %}
+
+{% block style %}
+.example {
+    color: #673ab7;
+}
+{% endblock %} 
+
+{% block content %} 
+ <span class="example">Сервис так же поддерживает наследование шаблонов. 
+    Например этот текст взят из templates/jinja-template.html.example</span> 
+{%endblock %}

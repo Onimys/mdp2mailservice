@@ -34,7 +34,7 @@ class FileAttachment(TypedDict):
 @app.command()
 @typer_async
 async def send():
-    raise NotImplementedError("TODO")
+    raise NotImplementedError("Method not implemented.")
 
 
 @app.command()
