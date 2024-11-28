@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
-from mdp2mailservice.mail.schemas import MailSchema
+from mdp2mailservice.mail.schemas import SendMailRequest
 from mdp2mailservice.template_engine.constants import TemplateType
 from mdp2mailservice.template_engine.schemas import Template
 
@@ -22,18 +22,18 @@ def custom_openapi(app: FastAPI):
             openapi_schema["components"]["schemas"][schema_name]["properties"]["body"] = {
                 "title": "Body",
                 "type": "object",
-                "$ref": "#/components/schemas/MailSchema",
+                "$ref": "#/components/schemas/SendMailRequest",
             }
 
-        openapi_schema["components"]["schemas"]["MailSchema"] = MailSchema.model_json_schema()
+        openapi_schema["components"]["schemas"]["SendMailRequest"] = SendMailRequest.model_json_schema()
         openapi_schema["components"]["schemas"]["Template"] = Template.model_json_schema()
         openapi_schema["components"]["schemas"]["TemplateType"] = [t.value for t in TemplateType]
 
-        openapi_schema["components"]["schemas"]["MailSchema"]["properties"]["message"]["anyOf"][0] = {
+        openapi_schema["components"]["schemas"]["SendMailRequest"]["properties"]["message"]["anyOf"][0] = {
             "type": "object",
             "$ref": "#/components/schemas/Template",
         }
-        del openapi_schema["components"]["schemas"]["MailSchema"]["$defs"]
+        del openapi_schema["components"]["schemas"]["SendMailRequest"]["$defs"]
 
         openapi_schema["components"]["schemas"]["Template"]["properties"]["type"]["$ref"] = (
             "#/components/schemas/TemplateType"

@@ -56,8 +56,14 @@ class RepositoryBase(Generic[ModelType]):
     async def get(self, pk: uuid.UUID | int) -> ModelType | None:
         return await self.session.get(self.model, pk)
 
-    async def get_all(self) -> list[ModelType]:
+    async def get_all(self, limit: int | None = None, offset: int | None = None) -> list[ModelType]:
         query = select(self.model)
+
+        if limit:
+            query = query.limit(limit)
+
+        if offset:
+            query = query.offset(offset)
 
         return list(await self.session.scalars(query))
 

@@ -14,7 +14,7 @@ from mdp2mailservice.template_engine.schemas import Template
 from .constants import DeliveryStatus
 from .models import Mail
 from .repository import MailRepository
-from .schemas import MailSchema
+from .schemas import SendMailRequest
 
 
 class MailService:
@@ -25,7 +25,7 @@ class MailService:
 
     async def send_mail(
         self,
-        mail_data: MailSchema,
+        mail_data: SendMailRequest,
         files: list[UploadFile] | list[Path] | None = None,
         *,
         mail_id: UUID | None = None,
@@ -67,3 +67,12 @@ class MailService:
         except Exception:
             await self.repository.update_status(mail.id, DeliveryStatus.FAILED)
             raise
+
+    async def get_mail(self, mail_id: UUID) -> Mail | None:
+        return await self.repository.get(mail_id)
+
+    async def get_mails(self, limit: int, offset: int) -> list[Mail] | None:
+        return await self.repository.list_by_filters(limit=limit, offset=offset)
+
+    async def delete_mail(self, mail_id: UUID) -> None:
+        return await self.repository.delete(Mail.id == mail_id)

@@ -60,13 +60,18 @@ class Config(SecretSerializeMixin, BaseSettings):
     APP_VERSION: str = get_app_version()
 
     ATTACHMENTS_FOLDER: str = f"{APP_FOLDER}/attachments/"
-    ATTACHMENTS_TOTAL_SIZE: int = 10 * 1024 * 1024
+    ATTACHMENTS_TOTAL_SIZE: int = 25 * 1024 * 1024
 
     ADMIN_ENABLED: bool = True
 
     TEMPLATE_DEFAULT_TYPE: str = "jinja"
     TEMPLATE_FOLDER_PATH: str = f"{get_app_name()}/{TEMPLATE_FOLDER}"
+    TEMPLATE_UPLOAD_MAX_SIZE: int = 5 * 1024 * 1024
     ABSOLUTE_TEMPLATE_FOLDER_PATH: str = f"{APP_FOLDER}/templates"
+
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_DURATION: int = 60
+    RATE_LIMIT_REQUESTS: int = 1000
 
     model_config = SettingsConfigDict(env_file=f"{APP_FOLDER}/.env")
 

@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from mdp2mailservice.routes import router as api_rputer
 
 from .config import settings
-from .exceptions import register_exception
+from .exceptions import register_exceptions
+from .middlewares import RateLimitingMiddleware
 from .openapi import custom_openapi
 
 
@@ -32,8 +33,6 @@ def get_application() -> FastAPI:
     if settings.ADMIN_ENABLED:
         register_admin(app)
 
-    register_exception(app)
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.ALLOWED_HOSTS,
@@ -42,6 +41,11 @@ def get_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    if settings.RATE_LIMIT_ENABLED:
+        app.add_middleware(RateLimitingMiddleware)  # type: ignore
+
+    register_exceptions(app)
 
     app.openapi = custom_openapi(app)
 

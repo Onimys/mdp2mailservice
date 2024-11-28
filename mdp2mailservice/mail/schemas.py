@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 import email_validator
@@ -8,7 +9,7 @@ from mdp2mailservice.template_engine.schemas import Template
 from .constants import EMPTY_RECIPIENTS_ERROR, DeliveryStatus
 
 
-class MailSchema(BaseModel):
+class SendMailRequest(BaseModel):
     to_recipients: list[str] = Field(
         ...,
         description="Recipients of the mail.",
@@ -49,10 +50,17 @@ class MailSchema(BaseModel):
         return True
 
 
-class MailInDB(MailSchema):
-    id: UUID4
-
-
 class SendMailResponse(BaseModel):
     status: DeliveryStatus
     mail_id: UUID4
+
+
+class MailInDB(BaseModel):
+    id: UUID4
+    to_recipients: list[str]
+    cc_recipients: list[str] | None = None
+    status: DeliveryStatus
+    subject: str | None = None
+    message: str
+    created_at: datetime
+    updated_at: datetime | None = None

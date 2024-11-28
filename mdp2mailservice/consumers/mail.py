@@ -7,10 +7,10 @@ from faststream.rabbit.fastapi import Logger, RabbitRouter
 
 from mdp2mailservice.core.config import settings
 from mdp2mailservice.mail.dependencies import get_service
-from mdp2mailservice.mail.schemas import MailSchema
+from mdp2mailservice.mail.schemas import SendMailRequest
 from mdp2mailservice.mail.service import MailService
 
-from .schemas import ConsumerMailSchema
+from .schemas import ConsumerMailRequest
 
 assert settings.MAIL_QUEUE_CONSUMER_ENABLED, "RabbitMQ consumer must be enabled."
 assert settings.MAIL_QUEUE_CONSUMER_URL, "RabbitMQ URL must be provided."
@@ -31,11 +31,11 @@ queue = RabbitQueue(settings.MAIL_QUEUE_CONSUMER_QUEUE, auto_delete=settings.MAI
     description="Common mail send with RabbitMQ.",
 )
 async def stream_send_mail(
-    msg: ConsumerMailSchema, logger: Logger, service: MailService = Depends(get_service)
+    msg: ConsumerMailRequest, logger: Logger, service: MailService = Depends(get_service)
 ) -> None:
     logger.info(msg)
 
-    mail = MailSchema(**msg.model_dump(exclude={"files"}))
+    mail = SendMailRequest(**msg.model_dump(exclude={"files"}))
 
     files: list[UploadFile] = []
     for file in msg.files or []:

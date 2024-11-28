@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
-from mdp2mailservice.mail.schemas import MailSchema
+from mdp2mailservice.mail.schemas import SendMailRequest
 
 
 class FileAttachment(BaseModel):
@@ -10,5 +10,5 @@ class FileAttachment(BaseModel):
     content: Annotated[str, Field(description="base64 encoded file content")]
 
 
-class ConsumerMailSchema(MailSchema):
+class ConsumerMailRequest(SendMailRequest):
     files: Annotated[list[FileAttachment] | None, Field(description="Attachments")] = None
