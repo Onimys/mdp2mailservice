@@ -24,6 +24,7 @@ class MailRepository(MailRepositoryBase):
         await self.session.commit()
 
     async def list_by_filters(self, limit: int, offset: int) -> list[Mail]:
+        # TODO: add filters
         query = select(self.model).order_by(Mail.created_at.desc())
         query = query.limit(limit).offset(offset)
 
