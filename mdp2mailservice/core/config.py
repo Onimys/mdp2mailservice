@@ -1,6 +1,6 @@
 import tomllib
 from pathlib import Path
-from typing import Final
+from typing import Final, Sequence
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -67,7 +67,7 @@ class Config(SecretSerializeMixin, BaseSettings):
     TEMPLATE_DEFAULT_TYPE: str = "jinja"
     TEMPLATE_FOLDER_PATH: str = f"{get_app_name()}/{TEMPLATE_FOLDER}"
     TEMPLATE_UPLOAD_MAX_SIZE: int = 5 * 1024 * 1024
-    ABSOLUTE_TEMPLATE_FOLDER_PATH: str = f"{APP_FOLDER}/templates"
+    TEMPLATE_ALLOWED_EXTENSIONS: Sequence[str] = ("html", "jinja", "mjml")
 
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_DURATION: int = 60

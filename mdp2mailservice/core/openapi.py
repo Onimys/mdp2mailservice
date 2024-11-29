@@ -2,8 +2,7 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
 from mdp2mailservice.mail.schemas import SendMailRequest
-from mdp2mailservice.template_engine.constants import TemplateType
-from mdp2mailservice.template_engine.schemas import Template
+from mdp2mailservice.template_engine.schemas import Template, TemplateType
 
 from .config import settings
 

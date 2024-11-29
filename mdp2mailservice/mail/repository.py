@@ -3,10 +3,9 @@ from uuid import UUID
 from sqlalchemy import select, update
 
 from mdp2mailservice.common.bases.repository import RepositoryBase
-from mdp2mailservice.mail.schemas import SendMailRequest
 
-from .constants import DeliveryStatus
 from .models import Mail
+from .schemas import DeliveryStatus, SendMailRequest
 
 
 class MailRepositoryBase(RepositoryBase[Mail]):

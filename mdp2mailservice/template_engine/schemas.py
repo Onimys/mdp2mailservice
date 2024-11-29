@@ -1,12 +1,16 @@
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 from mdp2mailservice.core.config import settings
 
-from .constants import TemplateType
-
 TemplateData = dict[str, Any]
+
+
+class TemplateType(str, Enum):
+    JINJA = "jinja"
+    MJML = "mjml"
 
 
 class Template(BaseModel):
@@ -16,3 +20,9 @@ class Template(BaseModel):
         default=TemplateType(settings.TEMPLATE_DEFAULT_TYPE),
         description="Type of template ('jinja' or 'mjml').",
     )
+
+
+class TemplateFile(BaseModel):
+    name: str
+    path: str
+    size: int

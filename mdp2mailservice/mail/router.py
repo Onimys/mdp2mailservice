@@ -2,17 +2,17 @@ import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, UploadFile, status
 
-from mdp2mailservice.common.utils.files import check_file_size, upload_files
+from mdp2mailservice.common.utils.files import check_files, upload_files
 from mdp2mailservice.common.utils.shared import validate_multupart_json
 from mdp2mailservice.core.config import settings
 from mdp2mailservice.mail.models import Mail
 
-from .constants import DEFAULT_MAILS_LIMIT, DEFAULT_MAILS_OFFSET, DeliveryStatus
+from .constants import DEFAULT_MAILS_LIMIT, DEFAULT_MAILS_OFFSET
 from .dependencies import get_mail_service, valid_mail_id
-from .schemas import MailInDB, SendMailRequest, SendMailResponse
+from .schemas import DeliveryStatus, MailInDB, SendMailRequest, SendMailResponse
 from .service import MailService
 
-router = APIRouter(tags=["mail"], prefix="/mails")
+router = APIRouter(tags=["mails"], prefix="/mails")
 
 
 @router.post(
@@ -22,7 +22,7 @@ router = APIRouter(tags=["mail"], prefix="/mails")
     response_model=SendMailResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
-@check_file_size(settings.ATTACHMENTS_TOTAL_SIZE)
+@check_files(settings.ATTACHMENTS_TOTAL_SIZE)
 async def send_mail(
     body: SendMailRequest = Depends(validate_multupart_json(SendMailRequest)),
     files: list[UploadFile] | None = File(None, examples=[[]]),
@@ -39,7 +39,7 @@ async def send_mail(
     response_model=SendMailResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
-@check_file_size(settings.ATTACHMENTS_TOTAL_SIZE)
+@check_files(settings.ATTACHMENTS_TOTAL_SIZE)
 async def send_mail_async(
     background_tasks: BackgroundTasks,
     body: SendMailRequest = Depends(validate_multupart_json(SendMailRequest)),

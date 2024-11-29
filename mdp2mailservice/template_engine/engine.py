@@ -7,8 +7,7 @@ from mjml import mjml2html
 
 from mdp2mailservice.core.config import settings
 
-from .constants import TemplateType
-from .schemas import Template
+from .schemas import Template, TemplateType
 
 templates = Jinja2Templates(directory=settings.TEMPLATE_FOLDER_PATH, autoescape=True)
 

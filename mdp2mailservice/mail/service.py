@@ -11,10 +11,9 @@ from mdp2mailservice.external_services.email import smtp_send_email
 from mdp2mailservice.template_engine.engine import TemplateEngine
 from mdp2mailservice.template_engine.schemas import Template
 
-from .constants import DeliveryStatus
 from .models import Mail
 from .repository import MailRepository
-from .schemas import SendMailRequest
+from .schemas import DeliveryStatus, SendMailRequest
 
 
 class MailService:

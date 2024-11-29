@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from mdp2mailservice.common.bases.models import Base, DateTimeMixin, uuid_
-from mdp2mailservice.mail.constants import DeliveryStatus
+from mdp2mailservice.mail.schemas import DeliveryStatus
 
 
 class Mail(DateTimeMixin, Base):

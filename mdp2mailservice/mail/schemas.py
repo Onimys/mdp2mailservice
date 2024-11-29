@@ -1,12 +1,21 @@
 from datetime import datetime
+from enum import Enum
 from typing import Any
 
 import email_validator
 from pydantic import UUID4, BaseModel, Field, field_validator, model_validator
 
+from mdp2mailservice.mail.exceptions import NoRecipientsFound
 from mdp2mailservice.template_engine.schemas import Template
 
-from .constants import EMPTY_RECIPIENTS_ERROR, DeliveryStatus
+
+class DeliveryStatus(str, Enum):
+    DRAFT = "draft"
+    QUEUED = "queued"
+    SENT = "sent"
+    FAILED = "failed"
+    DELIVERED = "delivered"
+    REJECTED = "rejected"
 
 
 class SendMailRequest(BaseModel):
@@ -35,7 +44,7 @@ class SendMailRequest(BaseModel):
     @field_validator("to_recipients")
     def validate_to_recipients(cls, value: list[str]) -> list[str]:
         if not value:
-            raise ValueError(EMPTY_RECIPIENTS_ERROR)
+            raise NoRecipientsFound()
 
         return value
 

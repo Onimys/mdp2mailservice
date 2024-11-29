@@ -56,6 +56,20 @@ class RateLimitExceededException(BaseInternalException):
     _message = "Rate limit exceeded. Please try again later."
 
 
+class MaxFileSizeExceededException(BaseInternalException):
+    """Exception raised when file size is too large."""
+
+    _status_code = 400
+    _message = "File size too large."
+
+
+class IncorrectFileExtensionException(BaseInternalException):
+    """Exception raised when incorrect file extension."""
+
+    _status_code = 400
+    _message = "Incorrect file extension."
+
+
 class MultipleValidationErrors(Exception):
     def __init__(self, errors: list[ErrorDetails]):
         super().__init__()

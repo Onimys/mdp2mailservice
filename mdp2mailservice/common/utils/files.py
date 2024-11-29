@@ -2,21 +2,32 @@ import os
 import shutil
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Sequence
 
 import aiofiles
-from fastapi import HTTPException, UploadFile
+from fastapi import UploadFile
+
+from mdp2mailservice.core.exceptions import IncorrectFileExtensionException, MaxFileSizeExceededException
 
 
-def check_file_size(max_size: int) -> Callable[..., Any]:
+def check_files(max_size: int = 0, ext: Sequence[str] | None = None) -> Callable[..., Any]:
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any):
-            files: list[UploadFile] | None = kwargs.get("files")
-            if files:
+            files: list[UploadFile] | None = kwargs.get("files") or kwargs.get("file")
+            if not isinstance(files, list):
+                files = [files]  # type: ignore
+
+            if files and max_size > 0:
                 total_file_size = sum([f.size or 0 for f in files])
                 if total_file_size > max_size:
-                    raise HTTPException(400, "File size exceeds {max} bytes")
+                    raise MaxFileSizeExceededException()
+
+            if files and ext:
+                for f in files:
+                    if f.filename and f.filename.split(".")[-1] not in ext:
+                        raise IncorrectFileExtensionException()
+
             return await func(*args, **kwargs)
 
         return wrapper
