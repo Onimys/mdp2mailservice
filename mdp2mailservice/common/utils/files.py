@@ -14,19 +14,21 @@ def check_files(max_size: int = 0, ext: Sequence[str] | None = None) -> Callable
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any):
-            files: list[UploadFile] | None = kwargs.get("files") or kwargs.get("file")
-            if not isinstance(files, list):
-                files = [files]  # type: ignore
+            files: list[UploadFile] | UploadFile | None = kwargs.get("files") or kwargs.get("file")
 
-            if files and max_size > 0:
-                total_file_size = sum([f.size or 0 for f in files])
-                if total_file_size > max_size:
-                    raise MaxFileSizeExceededException()
+            if files:
+                if not isinstance(files, list):
+                    files = [files]  # type: ignore
 
-            if files and ext:
-                for f in files:
-                    if f.filename and f.filename.split(".")[-1] not in ext:
-                        raise IncorrectFileExtensionException()
+                if max_size > 0:
+                    total_file_size = sum([f.size or 0 for f in files])
+                    if total_file_size > max_size:
+                        raise MaxFileSizeExceededException()
+
+                if ext:
+                    for f in files:
+                        if f.filename and f.filename.split(".")[-1] not in ext:
+                            raise IncorrectFileExtensionException()
 
             return await func(*args, **kwargs)
 

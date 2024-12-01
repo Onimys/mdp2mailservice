@@ -1,5 +1,6 @@
 import logging
 import logging.config
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
@@ -43,14 +44,14 @@ def extract_from_record(_: logging.Logger, __: str, event_dict: EventDict):
     return event_dict
 
 
+@dataclass
+class NoLocalsRichTracebackFormatter(structlog.dev.RichTracebackFormatter):
+    show_locals: bool = False
+    width: int = 120
+
+
 def configure_logger(json_logs: bool = False) -> None:
     timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S")
-
-    pre_chain = [
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.ExtraAdder(),
-        timestamper,
-    ]
 
     if settings.ENVIRONMENT == Environment.PRODUCTION:
         if not Path(settings.LOGS_FOLDER).is_dir():
@@ -65,9 +66,15 @@ def configure_logger(json_logs: bool = False) -> None:
                         "()": structlog.stdlib.ProcessorFormatter,
                         "processors": [
                             structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-                            structlog.dev.ConsoleRenderer(colors=False),
+                            structlog.dev.ConsoleRenderer(
+                                colors=False, exception_formatter=structlog.dev.plain_traceback
+                            ),
                         ],
-                        "foreign_pre_chain": pre_chain,
+                        "foreign_pre_chain": [
+                            structlog.stdlib.add_log_level,
+                            structlog.stdlib.ExtraAdder(),
+                            timestamper,
+                        ],
                     },
                 },
                 "handlers": {
@@ -76,7 +83,7 @@ def configure_logger(json_logs: bool = False) -> None:
                         "class": "logging.handlers.RotatingFileHandler",
                         "formatter": "plain",
                         "filename": f"{settings.LOGS_FOLDER}/app.log",
-                        "maxBytes": 10000,
+                        "maxBytes": 100000000,
                         "backupCount": 10,
                     },
                 },
@@ -84,7 +91,7 @@ def configure_logger(json_logs: bool = False) -> None:
                     "": {
                         "handlers": ["file"],
                         "level": settings.LOG_LEVEL,
-                        "propagate": True,
+                        "propagate": False,
                     },
                 },
             }
@@ -98,6 +105,7 @@ def configure_logger(json_logs: bool = False) -> None:
         structlog.stdlib.ExtraAdder(),
         drop_color_message_key,
         timestamper,
+        structlog.dev.set_exc_info,
         structlog.processors.StackInfoRenderer(),
     ]
 
@@ -108,11 +116,14 @@ def configure_logger(json_logs: bool = False) -> None:
     structlog.configure(
         processors=shared_processors + [structlog.stdlib.ProcessorFormatter.wrap_for_formatter],
         logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,
     )
 
-    log_renderer = structlog.processors.JSONRenderer() if json_logs else structlog.dev.ConsoleRenderer()
+    log_renderer = (
+        structlog.processors.JSONRenderer()
+        if json_logs
+        else structlog.dev.ConsoleRenderer(exception_formatter=NoLocalsRichTracebackFormatter())
+    )
 
     _configure_default_logging_by_custom(shared_processors, log_renderer)
 

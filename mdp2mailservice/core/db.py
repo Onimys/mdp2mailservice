@@ -29,7 +29,6 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         try:
             yield session
         except Exception:
-            logger.error("SQL Error in transaction", exc_info=True)
             await session.rollback()
             raise
         finally:
