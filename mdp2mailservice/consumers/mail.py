@@ -1,4 +1,5 @@
 import base64
+import logging
 from io import BytesIO
 
 from fastapi import Depends, UploadFile
@@ -21,6 +22,7 @@ router = RabbitRouter(
     schema_url="/asyncapi",
     asyncapi_url=str(settings.MAIL_QUEUE_CONSUMER_URL),
     tags=["Consumer"],
+    logger=logging.getLogger("faststream"),
 )
 queue = RabbitQueue(settings.MAIL_QUEUE_CONSUMER_QUEUE, auto_delete=settings.MAIL_QUEUE_CONSUMER_AUTO_DELETE)
 

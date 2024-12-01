@@ -7,8 +7,11 @@ from mdp2mailservice.routes import router as api_rputer
 
 from .config import settings
 from .exceptions import register_exceptions
+from .logging import configure_logger, get_logger
 from .middlewares import RateLimitingMiddleware
 from .openapi import custom_openapi
+
+logger = get_logger(__name__)
 
 
 def get_application() -> FastAPI:
@@ -31,21 +34,13 @@ def get_application() -> FastAPI:
         register_consumers(app)
 
     if settings.ADMIN_ENABLED:
+        logger.info("Admin panel will be enabled. See at /admin")
         register_admin(app)
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.ALLOWED_HOSTS,
-        allow_origin_regex=settings.ALLOWED_HOSTS_REGEX,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    if settings.RATE_LIMIT_ENABLED:
-        app.add_middleware(RateLimitingMiddleware)  # type: ignore
-
+    register_middlewares(app)
     register_exceptions(app)
+
+    configure_logger()
 
     app.openapi = custom_openapi(app)
 
@@ -69,3 +64,17 @@ def register_admin(app: FastAPI):
     from .db import engine
 
     create_admin_panel(app, engine)
+
+
+def register_middlewares(app: FastAPI):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.ALLOWED_HOSTS,
+        allow_origin_regex=settings.ALLOWED_HOSTS_REGEX,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    if settings.RATE_LIMIT_ENABLED:
+        app.add_middleware(RateLimitingMiddleware)  # type: ignore

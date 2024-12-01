@@ -36,6 +36,9 @@ class Config(SecretSerializeMixin, BaseSettings):
 
     DATABASE_URL: SecretUrl
 
+    LOG_LEVEL: str = "INFO"
+    LOGS_FOLDER: str = "logs"
+
     SMTP_HOST: str
     SMTP_PORT: int = 25
     SMTP_USERNAME: str

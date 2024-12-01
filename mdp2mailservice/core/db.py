@@ -5,6 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from mdp2mailservice.common.bases.models import Base
 
 from .config import settings
+from .logging import get_logger
+
+logger = get_logger(__name__)
 
 engine = create_async_engine(
     settings.DATABASE_URL.get_secret_value(),
@@ -26,6 +29,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         try:
             yield session
         except Exception:
+            logger.error("SQL Error in transaction", exc_info=True)
             await session.rollback()
             raise
         finally:
