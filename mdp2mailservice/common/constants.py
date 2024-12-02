@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class Environment:
     DEVELOPMENT: str = "development"
     PRODUCTION: str = "production"
+    TEST: str = "test"

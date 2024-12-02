@@ -32,7 +32,7 @@ target_metadata = Base.metadata
 
 def include_name(name, type_, parent_names):  # type: ignore
     if type_ == "schema":
-        return False
+        return name in ["mdp2mailservice"]
     else:
         return True
 
@@ -55,6 +55,8 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_schemas=True,
+        include_name=include_name,  # type: ignore
     )
 
     with context.begin_transaction():
@@ -74,6 +76,8 @@ def do_run_migrations(connection: Connection) -> None:
         target_metadata=target_metadata,
         version_table_schema="mdp2mailservice",
         include_object=include_object,  # type: ignore
+        include_schemas=True,
+        include_name=include_name,
     )
 
     with context.begin_transaction():
