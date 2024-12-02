@@ -12,3 +12,6 @@ migration:
 
 migrate:
 	alembic upgrade head
+
+docker_build:
+	docker-compose up -d --build

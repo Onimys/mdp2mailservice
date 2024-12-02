@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from mdp2mailservice.common.bases.models import Base
+from mdp2mailservice.common.constants import Environment
 
 from .config import settings
 from .logging import get_logger
@@ -11,7 +12,7 @@ logger = get_logger(__name__)
 
 engine = create_async_engine(
     settings.DATABASE_URL.get_secret_value(),
-    echo=settings.ENVIRONMENT == "development",
+    echo=settings.ENVIRONMENT == Environment.DEVELOPMENT,
     future=True,
     pool_pre_ping=True,
 )
