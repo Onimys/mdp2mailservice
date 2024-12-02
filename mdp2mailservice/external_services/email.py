@@ -51,6 +51,4 @@ async def smtp_send_email(
     async with smtp:
         await smtp.login(username, password)
         response = await smtp.send_message(message)
-        # ({}, 'OK id=1tHnIE-000000007yA-35y6')
-        # ({}, "OK id=1tHnKo-000000004aM-1LL3")
         return response

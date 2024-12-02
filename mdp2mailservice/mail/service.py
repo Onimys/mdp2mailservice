@@ -1,3 +1,4 @@
+import re
 import uuid
 from pathlib import Path
 from uuid import UUID
@@ -14,6 +15,9 @@ from mdp2mailservice.template_engine.schemas import Template
 from .models import Mail
 from .repository import MailRepository
 from .schemas import DeliveryStatus, SendMailRequest
+
+SMTPMailId = str
+SMTP_REGEX_IDENTIFIER: str = r"id=([^\s]+)"
 
 
 class MailService:
@@ -32,12 +36,22 @@ class MailService:
     ) -> Mail:
         mail_id = mail_id or uuid.uuid4()
 
+        template = None
+        template_data = None
         if isinstance(mail_data.message, Template):
+            template = mail_data.message.template
+            template_data = mail_data.message.context
             mail_data.message = self._template_engine(mail_data.message).format()
 
         try:
-            db_mail: Mail = await self.repository.create_mail(mail_id, mail_data)
-            await self.__send_mail(db_mail, files)
+            db_mail: Mail = await self.repository.create_mail(
+                mail_id, mail_data, template, template_data, attachments=[str(f) for f in files or []]
+            )
+
+            smtp_mail_id = await self.__send_mail(db_mail, files)
+            if smtp_mail_id:
+                await self.repository.set_smpt_id(db_mail.id, smtp_mail_id)
+
             await self.repository.update_status(db_mail.id, DeliveryStatus.SENT)
         finally:
             if remove_files:
@@ -45,12 +59,12 @@ class MailService:
 
         return db_mail
 
-    async def __send_mail(self, mail: Mail, files: list[UploadFile] | list[Path] | None = None) -> None:
+    async def __send_mail(self, mail: Mail, files: list[UploadFile] | list[Path] | None = None) -> SMTPMailId | None:
         assert mail.message, "Message must not be empty."
         assert mail.to_recipients, "Must provide at least one recipient."
 
         try:
-            await smtp_send_email(
+            _, response = await smtp_send_email(
                 host=settings.SMTP_HOST,
                 port=settings.SMTP_PORT,
                 username=settings.SMTP_USERNAME,
@@ -63,6 +77,9 @@ class MailService:
                 files=files,
                 use_tls=settings.SMTP_USE_TLS,
             )
+            founded = re.findall(SMTP_REGEX_IDENTIFIER, response)
+            if founded:
+                return founded[0]
         except Exception:
             await self.repository.update_status(mail.id, DeliveryStatus.FAILED)
             raise
