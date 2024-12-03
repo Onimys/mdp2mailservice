@@ -77,7 +77,7 @@ def do_run_migrations(connection: Connection) -> None:
         version_table_schema="mdp2mailservice",
         include_object=include_object,  # type: ignore
         include_schemas=True,
-        include_name=include_name,
+        include_name=include_name,  # type: ignore
     )
 
     with context.begin_transaction():

@@ -16,3 +16,5 @@ COPY . ./
 ENV  ENVIRONMENT="production"
 
 EXPOSE 8000
+
+CMD ["fastapi", "run", "mdp2mailservice/main.py", "--port", "8000", "--workers", "4"]
