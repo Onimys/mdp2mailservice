@@ -2,14 +2,13 @@ from abc import ABC
 from typing import Type
 
 import jinja2
-from fastapi.templating import Jinja2Templates
 from mjml import mjml2html
 
 from mdp2mailservice.core.config import settings
 
 from .schemas import Template, TemplateType
 
-templates = Jinja2Templates(directory=settings.TEMPLATE_FOLDER_PATH, autoescape=True)
+templates = jinja2.Environment(loader=jinja2.FileSystemLoader(settings.TEMPLATE_FOLDER_PATH), autoescape=True)
 
 
 def get_template(name_or_str: str) -> jinja2.Template:
