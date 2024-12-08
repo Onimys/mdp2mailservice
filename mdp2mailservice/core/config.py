@@ -1,4 +1,6 @@
+import os
 import tomllib
+from functools import lru_cache
 from pathlib import Path
 from typing import Final, Sequence
 
@@ -79,4 +81,31 @@ class Config(SecretSerializeMixin, BaseSettings):
     model_config = SettingsConfigDict(env_file=f"{APP_FOLDER}/.env")
 
 
-settings = Config()  # type: ignore
+class TestConfig(Config):
+    ENVIRONMENT: str = Environment.TEST
+    model_config = SettingsConfigDict(env_file=f"{APP_FOLDER}/.env.test")
+
+
+class DevConfig(Config):
+    ENVIRONMENT: str = Environment.DEVELOPMENT
+    model_config = SettingsConfigDict(env_file=(f"{APP_FOLDER}/.env", f"{APP_FOLDER}/.env.dev"))
+
+
+environments: dict[str, type[Config]] = {
+    Environment.DEVELOPMENT: DevConfig,
+    Environment.TEST: TestConfig,
+    Environment.PRODUCTION: Config,
+}
+
+
+@lru_cache
+def get_app_settings() -> Config:
+    """
+    Return application config.
+    """
+    app_env = os.getenv("ENVIRONMENT", "production")
+    config = environments[str(app_env)]
+    return config()  # type: ignore
+
+
+settings = get_app_settings()

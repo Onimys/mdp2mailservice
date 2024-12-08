@@ -13,7 +13,7 @@ class Health(BaseModel):
     config: Config | None = None
 
 
-@router.get("/status", name="check", description="Check health of service", response_model_exclude_none=True)
+@router.get("/health-check", name="check", description="Check health of service", response_model_exclude_none=True)
 def read_root(request: Request) -> Health:
     assert request.client
 

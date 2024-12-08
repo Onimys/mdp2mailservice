@@ -1,6 +1,7 @@
 import re
 import uuid
 from pathlib import Path
+from typing import Final, TypeAlias
 from uuid import UUID
 
 from fastapi import UploadFile
@@ -16,8 +17,8 @@ from .models import Mail
 from .repository import MailRepository
 from .schemas import DeliveryStatus, SendMailRequest
 
-SMTPMailId = str
-SMTP_REGEX_IDENTIFIER: str = r"id=([^\s]+)"
+SMTPMailId: TypeAlias = str
+SMTP_REGEX_IDENTIFIER: Final[str] = r"id=([^\s]+)"
 
 
 class MailService:
@@ -77,9 +78,8 @@ class MailService:
                 files=files,
                 use_tls=settings.SMTP_USE_TLS,
             )
-            founded = re.findall(SMTP_REGEX_IDENTIFIER, response)
-            if founded:
-                return founded[0]
+            if smtP_mail_id := re.findall(SMTP_REGEX_IDENTIFIER, response):
+                return smtP_mail_id[0]
         except Exception:
             await self.repository.update_status(mail.id, DeliveryStatus.FAILED)
             raise

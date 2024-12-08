@@ -9,6 +9,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy.schema import CreateSchema
+from sqlalchemy.util.concurrency import await_only, in_greenlet
 
 from mdp2mailservice.common.bases.models import Base
 from mdp2mailservice.core.config import settings
@@ -22,12 +23,14 @@ for _, pkg, is_pkg in pkgutil.iter_modules([os.path.normpath(os.path.dirname(__f
 
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.get_secret_value())
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.get_secret_value())
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
+config.attributes["target_metadata"] = target_metadata
 
 
 def include_name(name, type_, parent_names):  # type: ignore
@@ -90,7 +93,6 @@ async def run_async_migrations() -> None:
     and associate a connection with the context.
 
     """
-
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -106,7 +108,10 @@ async def run_async_migrations() -> None:
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
 
-    asyncio.run(run_async_migrations())
+    if in_greenlet():
+        await_only(run_async_migrations())
+    else:
+        asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():
